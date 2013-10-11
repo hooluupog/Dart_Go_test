@@ -5,8 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
-    "os"
 )
 
 var c_count int = 0
@@ -18,19 +18,19 @@ var dart_count int = 0
 
 func visit(path string, fileInfo os.FileInfo, err error) error {
 	if !fileInfo.IsDir() {
-		counter(path,fileInfo)
+		counter(path, fileInfo)
 	}
 	return err
 }
 
-func counter(path string,file os.FileInfo) {
+func counter(path string, file os.FileInfo) {
 	extension := filepath.Ext(file.Name())
 	switch extension {
 	case ".c":
 		c_count++
-	case ".cpp" :
+	case ".cpp":
 		cpp_count++
-    case ".cc" :
+	case ".cc":
 		cpp_count++
 
 	case ".java":
