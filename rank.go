@@ -32,7 +32,6 @@ func counter(path string,file os.FileInfo) {
 		cpp_count++
         case ".cc" :
 		cpp_count++
-
 	case ".java":
 		java_count++
 	case ".go":
