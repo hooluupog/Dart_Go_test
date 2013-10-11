@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
-    "os"
+        "os"
 )
 
 var c_count int = 0
@@ -30,7 +30,7 @@ func counter(path string,file os.FileInfo) {
 		c_count++
 	case ".cpp" :
 		cpp_count++
-    case ".cc" :
+        case ".cc" :
 		cpp_count++
 
 	case ".java":
