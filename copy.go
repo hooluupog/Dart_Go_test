@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -17,7 +16,7 @@ func do(err error, info ...interface{}) {
 }
 
 func Copy(dst io.Writer, src io.Reader, data chan int64) (written int64, err error) {
-	buf := make([]byte, 32*1024)
+	buf := make([]byte, 8*1024*1024)
 	for {
 		nr, er := src.Read(buf)
 		if nr > 0 {
@@ -45,21 +44,20 @@ func Copy(dst io.Writer, src io.Reader, data chan int64) (written int64, err err
 	}
 	return written, err
 }
-func downloadFromUrl(url string, data chan int64) {
-	tokens := strings.Split(url, "/")
+func downloadFromFile(path string, data chan int64) {
+	tokens := strings.Split(path, "/")
 	fileName := tokens[len(tokens)-1]
 	output, err := os.Create(fileName)
 	do(err, "Error while creating ", fileName)
 	defer output.Close()
-	response, err := http.Get(url)
-	do(err, "Error while downloading ", url)
-	if response.StatusCode == 404 {
-		log.Fatal("file NotFound: ", url)
-	}
-	defer response.Body.Close()
-	data <- response.ContentLength
-	_, err = Copy(output, response.Body, data)
-	do(err, "Error while downloading ", url)
+	stat, err := os.Stat(path)
+	do(err, "Error while getting file info ", fileName)
+	data <- stat.Size()
+	src, err := os.Open(path)
+	do(err, "Error while reading file ", fileName)
+	defer src.Close()
+	_, err = Copy(output, src, data)
+	do(err, "Error while downloading ", path)
 }
 
 func progress(data chan int64) {
@@ -91,15 +89,20 @@ func progress(data chan int64) {
 			updateSpeed = float64(size) / 1024 / duration
 			size = 0
 		}
-		fmt.Printf("\r%3.1f%%[%s] %4.0f KB/S", present*100, h, speed)
+		switch {
+		case speed/1024 < 1:
+			fmt.Printf("\r%3.1f%%[%s] %4.0f KB/S", present*100, h, speed)
+		default:
+			fmt.Printf("\r%3.1f%%[%s] %4.0f MB/S", present*100, h, speed/1024)
+		}
 	}
 }
 
 func main() {
 	data := make(chan int64)
 	//url := "http://www.baidu.com/img/bdlogo.gif"
-	url := "http://releases.ubuntu.com/trusty/ubuntu-14.04-beta2-desktop-i386.iso"
-	go downloadFromUrl(url, data)
+	path := "D:/备份/时空幻境 Braid 终生珍藏版 V1.0.zip"
+	go downloadFromFile(path, data)
 	progress(data)
 	fmt.Print("\nDownload finished.")
 }
