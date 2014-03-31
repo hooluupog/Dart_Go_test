@@ -1,3 +1,6 @@
+// 2014/3/31
+// File downloader
+
 package main
 
 import (
@@ -11,12 +14,14 @@ import (
 	"time"
 )
 
+// Error Handler function
 func do(err error, info ...interface{}) {
 	if err != nil {
 		log.Fatal("\n", info, "\n", err)
 	}
 }
 
+//Decide whether connection is alive
 func isConnected(url string) bool {
 	_, err := http.Head(url)
 	if err != nil {
@@ -24,8 +29,11 @@ func isConnected(url string) bool {
 	}
 	return true
 }
-func new_download(url string) io.Reader {
+
+// Start a new dowloading.
+func new_download(url string) *http.Response {
 	client := &http.Client{}
+	// Try connecting 10 times
 	for i := 0; i < 10; i++ {
 		time.Sleep(10000 * time.Millisecond)
 		fmt.Println("Trying ", i+1, " times")
@@ -38,11 +46,14 @@ func new_download(url string) io.Reader {
 			continue
 		}
 		fmt.Println("Connected.Restart downloading.")
-		return response.Body
+		return response
 	}
 	return nil
 }
-func resume_download(url string, fileSize, fileLength int64) io.Reader {
+
+// Continue downloading if sucessing to connect server host.
+func resume_download(url string, fileSize, fileLength int64) *http.Response {
+	// Try connecting 10 times
 	client := &http.Client{}
 	for i := 0; i < 10; i++ {
 		time.Sleep(10000 * time.Millisecond)
@@ -51,6 +62,7 @@ func resume_download(url string, fileSize, fileLength int64) io.Reader {
 		if err != nil {
 			continue
 		}
+		// Partial content transmit. Http 206 protocol.
 		contentRange := "bytes=" + strconv.FormatInt(fileSize, 10) + "-" + strconv.FormatInt(fileLength-1, 10)
 		req.Header.Add("Range", contentRange)
 		response, err := client.Do(req)
@@ -58,27 +70,32 @@ func resume_download(url string, fileSize, fileLength int64) io.Reader {
 			continue
 		}
 		fmt.Println("Connected.Resume downloading.")
-		return response.Body
+		return response
 	}
 	return nil
 }
+
+// File downloading scheduler.
 func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLength int64, data chan int64) (written int64, err error) {
 	buf := make([]byte, 32*1024)
+	var resp *http.Response
 	for {
 		if !isConnected(url) {
 			fmt.Println("\nConnection closed.Retry connecting...")
 			stat, err := os.Stat(fileName)
-			if err != nil {
+			if err != nil { // File broken and recreating a new file.
 				output, err := os.Create(fileName)
 				do(err, "Can not create ", fileName)
 				fmt.Println("File broken.Will restart downloaing.")
 				defer output.Close()
 				dst = output
-				src = new_download(url)
+				resp = new_download(url)
+				src = resp.Body
 				written = 0
-			} else {
+			} else { // Continue dowloading.
 				fileSize := stat.Size()
-				src = resume_download(url, fileSize, fileLength)
+				resp = resume_download(url, fileSize, fileLength)
+				src = resp.Body
 			}
 			if src == nil {
 				fmt.Println("download failed.")
@@ -102,7 +119,7 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 			}
 		}
 		if er == io.EOF {
-			data <- -1
+			data <- -1 // Send dowloading task finished signal.
 			break
 		}
 		if er != nil {
@@ -110,8 +127,13 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 			break
 		}
 	}
+	if resp != nil {
+		resp.Body.Close()
+	}
 	return written, err
 }
+
+// Start a dowloading task.
 func downloadFromUrl(url string, data chan int64) {
 	tokens := strings.Split(url, "/")
 	fileName := tokens[len(tokens)-1]
@@ -133,7 +155,7 @@ func downloadFromUrl(url string, data chan int64) {
 	do(err, "Error while downloading ", url)
 }
 
-func progress(data chan int64) {
+func progress(data chan int64) { // Real-time displaying rate of progress.
 	fileLength := <-data
 	start := time.Now()
 	var size int64
@@ -154,13 +176,13 @@ func progress(data chan int64) {
 		i := int(present * 50)
 		h := strings.Repeat("=", i) + strings.Repeat(" ", 50-i)
 		duration := time.Since(start).Seconds()
-		if currentSize < lastSize {
+		if currentSize < lastSize { // A new dowloading begins.
 			lastSize = currentSize
 		}
 		size = size + currentSize - lastSize
 		speed = updateSpeed
 		lastSize = currentSize
-		if duration > 1 {
+		if duration > 1 { // Update progress every 1 seconds or so.
 			start = time.Now()
 			updateSpeed = float64(size) / 1024 / duration
 			size = 0
@@ -172,7 +194,8 @@ func progress(data chan int64) {
 func main() {
 	data := make(chan int64)
 	//url := "http://www.baidu.com/img/bdlogo.gif"
-	url := "http://releases.ubuntu.com/14.04/ubuntu-14.04-beta2-desktop-i386.iso"
+	//url := "http://releases.ubuntu.com/14.04/ubuntu-14.04-beta2-desktop-i386.iso"
+	url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
 	go downloadFromUrl(url, data)
 	progress(data)
 	fmt.Print("\nDownload finished.")
