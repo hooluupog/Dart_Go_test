@@ -133,10 +133,27 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 	return written, err
 }
 
+//Get fileName from URL
+func getFileName(url string) (name string) {
+	header, err := http.Head(url)
+	do(err, "Error while getting header", url)
+	contentDisposition := header.Header.Get("Content-Disposition")
+	if contentDisposition == "" {
+		// Empty Content-Disposition value,
+		// parse fileName directly from url.
+		tokens := strings.Split(url, "/")
+		name := tokens[len(tokens)-1]
+		return name
+	}
+
+	name = strings.SplitAfter(contentDisposition, "filename=")[1]
+	return name
+}
+
 // Start a dowloading task.
 func downloadFromUrl(url string, data chan int64) {
-	tokens := strings.Split(url, "/")
-	fileName := tokens[len(tokens)-1]
+	fileName := getFileName(url)
+	fmt.Print("File: ", fileName, " ")
 	output, err := os.Create(fileName)
 	do(err, "Error while creating ", fileName)
 	defer output.Close()
@@ -193,9 +210,9 @@ func progress(data chan int64) { // Real-time displaying rate of progress.
 
 func main() {
 	data := make(chan int64)
-	//url := "http://www.baidu.com/img/bdlogo.gif"
+	url := "http://www.baidu.com/img/bdlogo.gif"
 	//url := "http://releases.ubuntu.com/14.04/ubuntu-14.04-beta2-desktop-i386.iso"
-	url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
+	//url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
 	go downloadFromUrl(url, data)
 	progress(data)
 	fmt.Print("\nDownload finished.")
