@@ -1,9 +1,10 @@
-// 2014/3/31
+// 2014/4/7
 // File downloader
-
+// Lee
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -69,6 +70,11 @@ func resume_download(url string, fileSize, fileLength int64) *http.Response {
 		if err != nil {
 			continue
 		}
+		//fmt.Println(response.Header)
+		//fmt.Println(response.Header.Get("Location"))
+		//fmt.Println(response.Header.Get("Content-Length"), fileLength)
+		//fmt.Println(response.Header.Get("Content-Range"))
+		//fmt.Println(response.StatusCode)
 		fmt.Println("Connected.Resume downloading.")
 		return response
 	}
@@ -95,7 +101,17 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 			} else { // Continue dowloading.
 				fileSize := stat.Size()
 				resp = resume_download(url, fileSize, fileLength)
-				src = resp.Body
+				if resp.StatusCode != 206 {
+					fmt.Println("Do not support partial download.Restart downloading.")
+					output, err := os.Create(fileName)
+					do(err, "Can not create ", fileName)
+					defer output.Close()
+					dst = output
+					src = resp.Body
+					written = 0
+				} else {
+					src = resp.Body
+				}
 			}
 			if src == nil {
 				fmt.Println("download failed.")
@@ -133,8 +149,37 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 	return written, err
 }
 
-//Get fileName from URL
-func getFileName(url string) (name string) {
+//Check whether it is redirect url. Limit the redirect num <= 10.
+func redirectChecker(location string) (string, string, error) {
+	name, Location := location, location
+	for redirect := 0; redirect < 10; redirect++ {
+		req, err := http.NewRequest("GET", Location, nil)
+		do(err, "bad redirect link.", Location)
+		trans := &http.Transport{}
+		res, err := trans.RoundTrip(req)
+		do(err, "Error while return response", Location)
+		contentDisposition := res.Header.Get("Content-Disposition")
+		Location = res.Header.Get("Location")
+		if Location == "" {
+			if contentDisposition != "" {
+				name = contentDisposition
+				return name, location, nil
+			} else {
+				return name, location, nil
+			}
+		}
+		if contentDisposition != "" {
+			name = contentDisposition
+		} else {
+			name, location = Location, Location
+		}
+	}
+	err := errors.New("> 10 times redirection.")
+	return name, location, err
+}
+
+//Get fileName and real url from original URL.
+func parseUrl(url string) (name string, rUrl string) {
 	req, err := http.NewRequest("GET", url, nil)
 	do(err, "Error while requesting ", url)
 	// do request without redirect support.
@@ -143,42 +188,56 @@ func getFileName(url string) (name string) {
 	do(err, "Error while return response", url)
 	contentDisposition := res.Header.Get("Content-Disposition")
 	Location := res.Header.Get("Location")
-	if contentDisposition == "" {
-		if Location == "" {
+	if Location == "" { // Non redirection.
+		if contentDisposition == "" {
 			// Empty Content-Disposition value,
 			// parse fileName directly from url.
 			tokens := strings.Split(url, "/")
-			name := tokens[len(tokens)-1]
-			return name
+			name = tokens[len(tokens)-1]
+			rUrl = url
+			return name, rUrl
 		}
-		tokens := strings.Split(Location, "/")
-		name := tokens[len(tokens)-1]
-		return name
+		name = strings.SplitAfter(contentDisposition, "filename=")[1]
+		name = strings.Trim(name, "\"")
+		rUrl = url
+		return name, rUrl
 	}
-	name = strings.SplitAfter(contentDisposition, "filename=")[1]
-	return name
+	name, Location, err = redirectChecker(Location)
+	do(err, "Too many redirect link.", url)
+	tokens := strings.Split(name, "/")
+	name = tokens[len(tokens)-1]
+	if strings.Contains(name, "fn=") {
+		name = strings.SplitAfter(name, "fn=")[1]
+		name = strings.Trim(name, "\"")
+	}
+	if strings.Contains(name, "filename=") {
+		name = strings.SplitAfter(name, "filename=")[1]
+		name = strings.Trim(name, "\"")
+	}
+	rUrl = Location
+	return name, rUrl
 }
 
 // Start a dowloading task.
 func downloadFromUrl(url string, data chan int64) {
-	fileName := getFileName(url)
+	fileName, rUrl := parseUrl(url)
 	fmt.Print("File: ", fileName, " ")
 	output, err := os.Create(fileName)
 	do(err, "Error while creating ", fileName)
 	defer output.Close()
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-	do(err, "Error while requesting ", url)
+	req, err := http.NewRequest("GET", rUrl, nil)
+	do(err, "Error while requesting ", rUrl)
 	response, err := client.Do(req)
-	do(err, "Error while downloading ", url)
+	do(err, "Error while downloading ", rUrl)
 	if response.StatusCode == 404 {
-		log.Fatal("file NotFound: ", url)
+		log.Fatal("file NotFound: ", rUrl)
 	}
 	defer response.Body.Close()
 	fileLength := response.ContentLength
 	data <- fileLength
-	_, err = transfer(output, response.Body, url, fileName, fileLength, data)
-	do(err, "Error while downloading ", url)
+	_, err = transfer(output, response.Body, rUrl, fileName, fileLength, data)
+	do(err, "Error while downloading ", rUrl)
 }
 
 func progress(data chan int64) { // Real-time displaying rate of progress.
@@ -220,9 +279,12 @@ func progress(data chan int64) { // Real-time displaying rate of progress.
 func main() {
 	data := make(chan int64)
 	//url := "http://www.baidu.com/img/bdlogo.gif"
+	//url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
 	url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
 	//url := "http://releases.ubuntu.com/14.04/ubuntu-14.04-beta2-desktop-i386.iso"
 	//url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
+	//url := "https://gitcafe.com/riku/Markdown-Syntax-CN/tarball/master"
+	//url := "http://download.skycn.com/hao123-soft-online-bcs/soft/P/2013-12-31_PowerWord.100@7728@_sky4.exe"
 	go downloadFromUrl(url, data)
 	progress(data)
 	fmt.Print("\nDownload finished.")
