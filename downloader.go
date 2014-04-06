@@ -135,17 +135,26 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 
 //Get fileName from URL
 func getFileName(url string) (name string) {
-	header, err := http.Head(url)
-	do(err, "Error while getting header", url)
-	contentDisposition := header.Header.Get("Content-Disposition")
+	req, err := http.NewRequest("GET", url, nil)
+	do(err, "Error while requesting ", url)
+	// do request without redirect support.
+	trans := &http.Transport{}
+	res, err := trans.RoundTrip(req)
+	do(err, "Error while return response", url)
+	contentDisposition := res.Header.Get("Content-Disposition")
+	Location := res.Header.Get("Location")
 	if contentDisposition == "" {
-		// Empty Content-Disposition value,
-		// parse fileName directly from url.
-		tokens := strings.Split(url, "/")
+		if Location == "" {
+			// Empty Content-Disposition value,
+			// parse fileName directly from url.
+			tokens := strings.Split(url, "/")
+			name := tokens[len(tokens)-1]
+			return name
+		}
+		tokens := strings.Split(Location, "/")
 		name := tokens[len(tokens)-1]
 		return name
 	}
-
 	name = strings.SplitAfter(contentDisposition, "filename=")[1]
 	return name
 }
@@ -210,7 +219,8 @@ func progress(data chan int64) { // Real-time displaying rate of progress.
 
 func main() {
 	data := make(chan int64)
-	url := "http://www.baidu.com/img/bdlogo.gif"
+	//url := "http://www.baidu.com/img/bdlogo.gif"
+	url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
 	//url := "http://releases.ubuntu.com/14.04/ubuntu-14.04-beta2-desktop-i386.iso"
 	//url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
 	go downloadFromUrl(url, data)
