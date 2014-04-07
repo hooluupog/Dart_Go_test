@@ -247,26 +247,65 @@ func downloadFromUrl(url string, data chan int64) {
 	<-data
 }
 
+// Format total seconds into xx:xx:xx.(hour:minute:second)
+func timeFormat(sec int64) string {
+	fmtTime := ""
+	if sec == -1 {
+		fmtTime = "> 1 day"
+		return fmtTime
+	}
+	hour := sec / 3600
+	minute := sec % 3600 / 60
+	second := sec % 3600 % 60
+	switch {
+	case hour < 10:
+		fmtTime = "0" + strconv.FormatInt(hour, 10) + ":"
+	default:
+		fmtTime = strconv.FormatInt(hour, 10) + ":"
+	}
+	switch {
+	case minute < 10:
+		fmtTime += "0" + strconv.FormatInt(minute, 10) + ":"
+	default:
+		fmtTime += strconv.FormatInt(minute, 10) + ":"
+	}
+	switch {
+	case second < 10:
+		fmtTime += "0" + strconv.FormatInt(second, 10)
+	default:
+		fmtTime += strconv.FormatInt(second, 10)
+	}
+	return fmtTime
+}
+
+//Format file size Bytes show GB,MB,KB,B.
+func sizeFormat(size float64) string {
+	showSize := ""
+	switch {
+	case size/1024 <= 1:
+		showSize = strconv.FormatFloat(size, 'f', 0, 64) + "B"
+	case size/1024/1024 <= 1:
+		showSize = strconv.FormatFloat(size/1024, 'f', 1, 64) + "KB"
+	case size/1024/1024/1024 <= 1:
+		showSize = strconv.FormatFloat(size/1024/1024, 'f', 1, 64) + "MB"
+	default:
+		showSize = strconv.FormatFloat(size/1024/1024/1024, 'f', 1, 64) + "GB"
+	}
+	return showSize
+}
+
 func progress(data chan int64) { // Real-time displaying rate of progress.
 	fileLength := <-data
 	start := time.Now()
+	earlest := start
 	var size int64
 	var speed, updateSpeed float64
-	totalSize := float64(fileLength)
-	switch {
-	case totalSize/1024 <= 1:
-		fmt.Printf("Total Size: %fB\n", totalSize)
-	case totalSize/1024/1024 <= 1:
-		fmt.Printf("Total Size: %.0fkB\n", totalSize/1024)
-	case totalSize/1024/1024/1024 <= 1:
-		fmt.Printf("Total Size: %.0fMB\n", totalSize/1024/1024)
-	default:
-		fmt.Printf("Total Size: %.1fGB\n", totalSize/1024/1024/1024)
-	}
+	totalSize := sizeFormat(float64(fileLength))
+	fmt.Printf("Total Size: %s\n", totalSize)
 	for lastSize, currentSize := int64(0), int64(0); currentSize != -1; currentSize = <-data {
 		present := float64(currentSize) / float64(fileLength)
-		i := int(present * 50)
-		h := strings.Repeat("=", i) + strings.Repeat(" ", 50-i)
+		//i := int(present * 50)
+		//h := strings.Repeat("=", i) + strings.Repeat(" ", 50-i)
 		duration := time.Since(start).Seconds()
 		if currentSize < lastSize { // A new dowloading begins.
 			lastSize = currentSize
@@ -279,7 +318,15 @@ func progress(data chan int64) { // Real-time displaying rate of progress.
 			updateSpeed = float64(size) / 1024 / duration
 			size = 0
 		}
-		fmt.Printf("\r%3.1f%%[%s] %4.0f KB/S", present*100, h, speed)
+		showCurrent := sizeFormat(float64(currentSize))
+		remained := int64(-1)
+		if speed != 0 {
+			remained = (fileLength - currentSize) / 1024 / int64(speed)
+		}
+		elapsed := int64(time.Now().Sub(earlest).Seconds())
+		rTime := timeFormat(remained)
+		eTime := timeFormat(elapsed)
+		fmt.Printf("\r%4.1f%%  %8s/%-8s  %4.0f KB/S  Elapsed[%8s] Remain[%8s]", present*100, showCurrent, totalSize, speed, eTime, rTime)
 	}
 	//Wait downloadfromurl() finish executing.
 	data <- 1
@@ -290,11 +337,11 @@ func main() {
 	data := make(chan int64)
 	//url := "http://www.baidu.com/img/bdlogo.gif"
 	//url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
-	//url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
+	url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
 	//url := "http://releases.ubuntu.com/14.04/ubuntu-14.04-beta2-desktop-i386.iso"
 	//url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
 	//url := "https://gitcafe.com/riku/Markdown-Syntax-CN/tarball/master"
-	url := "http://download.skycn.com/hao123-soft-online-bcs/soft/P/2013-12-31_PowerWord.100@7728@_sky4.exe"
+	//url := "http://download.skycn.com/hao123-soft-online-bcs/soft/P/2013-12-31_PowerWord.100@7728@_sky4.exe"
 	go downloadFromUrl(url, data)
 	progress(data)
 	fmt.Print("\nDownload finished.")
