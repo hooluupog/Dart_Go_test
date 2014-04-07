@@ -222,9 +222,9 @@ func parseUrl(url string) (name string, rUrl string) {
 func downloadFromUrl(url string, data chan int64) {
 	fileName, rUrl := parseUrl(url)
 	fmt.Print("File: ", fileName, " ")
-	output, err := os.Create(fileName)
-	do(err, "Error while creating ", fileName)
-	defer output.Close()
+	tempName := fileName + ".download"
+	output, err := os.Create(tempName)
+	do(err, "Error while creating ", tempName)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", rUrl, nil)
 	do(err, "Error while requesting ", rUrl)
@@ -236,8 +236,15 @@ func downloadFromUrl(url string, data chan int64) {
 	defer response.Body.Close()
 	fileLength := response.ContentLength
 	data <- fileLength
-	_, err = transfer(output, response.Body, rUrl, fileName, fileLength, data)
+	written, err := transfer(output, response.Body, rUrl, tempName, fileLength, data)
 	do(err, "Error while downloading ", rUrl)
+	output.Close()
+	if written == fileLength {
+		err := os.Rename(tempName, fileName)
+		do(err, "Error while renaming file", tempName)
+	}
+	// Wakeup progress().
+	<-data
 }
 
 func progress(data chan int64) { // Real-time displaying rate of progress.
@@ -274,17 +281,20 @@ func progress(data chan int64) { // Real-time displaying rate of progress.
 		}
 		fmt.Printf("\r%3.1f%%[%s] %4.0f KB/S", present*100, h, speed)
 	}
+	//Wait downloadfromurl() finish executing.
+	data <- 1
+	close(data)
 }
 
 func main() {
 	data := make(chan int64)
 	//url := "http://www.baidu.com/img/bdlogo.gif"
 	//url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
-	url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
+	//url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
 	//url := "http://releases.ubuntu.com/14.04/ubuntu-14.04-beta2-desktop-i386.iso"
 	//url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
 	//url := "https://gitcafe.com/riku/Markdown-Syntax-CN/tarball/master"
-	//url := "http://download.skycn.com/hao123-soft-online-bcs/soft/P/2013-12-31_PowerWord.100@7728@_sky4.exe"
+	url := "http://download.skycn.com/hao123-soft-online-bcs/soft/P/2013-12-31_PowerWord.100@7728@_sky4.exe"
 	go downloadFromUrl(url, data)
 	progress(data)
 	fmt.Print("\nDownload finished.")
