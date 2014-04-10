@@ -250,7 +250,7 @@ func downloadFromUrl(url string, data chan int64) {
 // Format total seconds into xx:xx:xx.(hour:minute:second)
 func timeFormat(sec int64) string {
 	fmtTime := ""
-	if sec == -1 {
+	if sec == -1 || (sec/3600 > 24) {
 		fmtTime = "> 1 day"
 		return fmtTime
 	}
@@ -320,7 +320,7 @@ func progress(data chan int64) { // Real-time displaying rate of progress.
 		}
 		showCurrent := sizeFormat(float64(currentSize))
 		remained := int64(-1)
-		if speed != 0 {
+		if int64(speed) != 0 {
 			remained = (fileLength - currentSize) / 1024 / int64(speed)
 		}
 		elapsed := int64(time.Now().Sub(earlest).Seconds())
@@ -337,8 +337,9 @@ func main() {
 	data := make(chan int64)
 	//url := "http://www.baidu.com/img/bdlogo.gif"
 	//url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
-	url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
-	//url := "http://releases.ubuntu.com/14.04/ubuntu-14.04-beta2-desktop-i386.iso"
+	//url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
+	//url := "http://cdimage.ubuntu.com/daily-live/current/trusty-desktop-i386.iso"
+	url := "http://nj.baidupcs.com/file/1fcbccdbdf4e64c9320d503e42ba1c39?xcode=9e6be5366124c95d5eb3f719eabe654969ca792c15612f02&fid=1746018321-250528-75500252898357&time=1397108108&sign=FDTAXER-DCb740ccc5511e5e8fedcff06b081203-lEUebeGcrMY0WduRWWsz%2BGyRURg%3D&to=nb&fm=N,B,T,t&newver=1&expires=1397127564&rt=sh&r=308399442&logid=337143703&sh=1&vuk=1746018321&fn=trusty-desktop-i386.iso"
 	//url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
 	//url := "https://gitcafe.com/riku/Markdown-Syntax-CN/tarball/master"
 	//url := "http://download.skycn.com/hao123-soft-online-bcs/soft/P/2013-12-31_PowerWord.100@7728@_sky4.exe"
