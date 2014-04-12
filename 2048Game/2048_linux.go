@@ -385,14 +385,13 @@ func main() {
 	C.initCurse()
 	isRunning := true
 	for isRunning {
-		if !canMove() {
-			if maxValue == WIN {
-				fmt.Println("\rYou win!")
-				break
-			} else {
-				fmt.Println("\rYou lose.")
-				break
-			}
+		if maxValue == WIN {
+			fmt.Println("You win!")
+			break
+		}
+		if !canMove() && maxValue != WIN {
+			fmt.Println("You lose.")
+			break
 		}
 		isRunning = getUserCmd()
 	}

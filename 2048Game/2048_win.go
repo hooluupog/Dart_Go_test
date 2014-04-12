@@ -374,14 +374,13 @@ func canMove() bool {
 func main() {
 	isRunning := true
 	for isRunning {
-		if !canMove() {
-			if maxValue == WIN {
-				fmt.Println("You win!")
-				break
-			} else {
-				fmt.Println("You lose.")
-				break
-			}
+		if maxValue == WIN {
+			fmt.Println("You win!")
+			break
+		}
+		if !canMove() && maxValue != WIN {
+			fmt.Println("You lose.")
+			break
 		}
 		isRunning = getUserCmd()
 	}
