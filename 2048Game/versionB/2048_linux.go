@@ -106,6 +106,22 @@ func rTile(direction int, row, col int) *uint32 {
 	return rTile(direction-1, col, SIZE-1-row)
 }
 
+// Make left direction movement as default to fill grid without need rotating grid.
+// When other direction movement command input,rotate grid with new layout and then
+// fill grid according left direction movement.
+// double loop sequence: outer-row, inner-col.
+// arrow key     direction  outer-inner loop  move  ||  after rotation  move
+//   left            0        row++,col++      ←   ||   row++,col++     ←
+//   right           2        row--,col--      →   ||   row++,col++     ←
+//   up              1        col--,row++      ↑   ||   row++,col++     ←
+//   down            3        col++,row--      ↓   ||   row++,col++     ←
+// Do clock-anti rotation.
+//                 left(0)       up(1)      right(2)    down(3)
+//                     ←             ←         ←          ←
+//                   1   2         2    4      4    3      3    1
+//                 ↓      ↑
+//                   3   4         1    3      2    1      4    2
+//                     →
 func moveOneStep(direction int) bool {
 	moveCount := 0
 	for row := 0; row < SIZE; row++ {
@@ -157,23 +173,6 @@ func moveOneStep(direction int) bool {
 } // moveOneStep
 
 func getCmd() {
-	// Make left direction movement as default to fill grid without need rotating grid.
-	// When other direction movement command input,rotate grid with new layout and then
-	// fill grid according left direction movement.
-	// double loop sequence: outer-row, inner-col.
-	// arrow key     direction  outer-inner loop  move  ||  after rotation  move
-	//   left            0        row++,col++      ←   ||   row++,col++     ←
-	//   right           2        row--,col--      →   ||   row++,col++     ←
-	//   up              1        col--,row++      ↑   ||   row++,col++     ←
-	//   down            3        col++,row--      ↓   ||   row++,col++     ←
-	// Do clock-anti rotation.
-	//                 left(0)       up(1)      right(2)    down(3)
-	//                     ←             ←         ←          ←
-	//                   1   2         2    4      4    3      3    1
-	//                 ↓      ↑
-	//                   3   4         1    3      2    1      4    2
-	//                     →
-
 	cmd := getKey()
 	switch cmd[2] {
 	case KEY_UP:
