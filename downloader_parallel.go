@@ -1,4 +1,4 @@
-// 2014/4/7
+// 2014/4/20
 // File downloader
 // Lee
 package main
@@ -43,7 +43,7 @@ func isConnected(url string) bool {
 }
 
 // Start a new dowloading.
-func new_download(url string) *http.Response {
+func newDownload(url string) *http.Response {
 	client := &http.Client{}
 	// Try connecting 10 times
 	for i := 0; i < 10; i++ {
@@ -58,14 +58,14 @@ func new_download(url string) *http.Response {
 		if err != nil {
 			continue
 		}
-		fmt.Println("Connected.Restart downloading.")
+		fmt.Println("\nConnected.Restart downloading.")
 		return response
 	}
 	return nil
 }
 
 // Continue downloading if sucessing to connect server host.
-func resume_download(url string, fileSize, fileLength int64) *http.Response {
+func resumeDownload(url string, fileSize, fileLength int64) *http.Response {
 	// Try connecting 10 times
 	client := &http.Client{}
 	for i := 0; i < 10; i++ {
@@ -88,7 +88,7 @@ func resume_download(url string, fileSize, fileLength int64) *http.Response {
 		//fmt.Println(response.Header.Get("Content-Length"), fileLength)
 		//fmt.Println(response.Header.Get("Content-Range"))
 		//fmt.Println(response.StatusCode)
-		fmt.Println("Connected.Resume downloading.")
+		fmt.Println("\nConnected.Resume downloading.")
 		return response
 	}
 	return nil
@@ -96,7 +96,7 @@ func resume_download(url string, fileSize, fileLength int64) *http.Response {
 
 // File downloading scheduler.
 func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLength int64) (written int64, err error) {
-	buf := make([]byte, 32*1024)
+	buf := int64(32 * 1024)
 	var resp *http.Response
 	for {
 		if !isConnected(url) {
@@ -105,15 +105,15 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 			if err != nil { // File broken and recreating a new file.
 				output, err := os.Create(fileName)
 				do(err, "Can not create ", fileName)
-				fmt.Println("File broken.Will restart downloaing.")
+				fmt.Println("File broken.Will restart downloading.")
 				defer output.Close()
 				dst = output
-				resp = new_download(url)
+				resp = newDownload(url)
 				src = resp.Body
 				written = 0
 			} else { // Continue dowloading.
 				fileSize := stat.Size()
-				resp = resume_download(url, fileSize, fileLength)
+				resp = resumeDownload(url, fileSize, fileLength)
 				if resp.StatusCode != 206 {
 					fmt.Println("Do not support partial download.Restart downloading.")
 					output, err := os.Create(fileName)
@@ -131,26 +131,9 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 				os.Exit(1)
 			}
 		}
-		nr, er := src.Read(buf)
-		if nr > 0 {
-			nw, ew := dst.Write(buf[0:nr])
-			if nw > 0 {
-				written += int64(nw)
-			}
-			if ew != nil {
-				err = ew
-				break
-			}
-			if nr != nw {
-				err = io.ErrShortWrite
-				break
-			}
-		}
+		w, er := io.CopyN(dst, src, buf)
+		written += w
 		if er == io.EOF {
-			break
-		}
-		if er != nil {
-			err = er
 			break
 		}
 	}
@@ -309,6 +292,9 @@ func sizeFormat(size float64) string {
 func progress(fInfo *fileInfo, elapsed int64) { // Real-time displaying rate of progress.
 	var size int64
 	var speed float64
+	if fInfo.fileName == "" {
+		return
+	}
 	stat, err := os.Stat(fInfo.fileName + ".download")
 	if err != nil {
 		stat, err = os.Stat(fInfo.fileName)
@@ -332,7 +318,9 @@ func progress(fInfo *fileInfo, elapsed int64) { // Real-time displaying rate of 
 	}
 	rTime := timeFormat(remained)
 	eTime := timeFormat(elapsed)
-	fmt.Printf("\r%4.1f%%  %8s/%-8s  %4.0f KB/S  Elapsed[%8s] Remain[%8s]", present*100, showCurrent, totalSize, speed, eTime, rTime)
+	if fInfo.fileLength != 0 {
+		fmt.Printf("\r%4.1f%%  %8s/%-8s  %4.0f KB/S  Elapsed[%8s] Remain[%8s]", present*100, showCurrent, totalSize, speed, eTime, rTime)
+	}
 }
 
 func main() {
@@ -340,11 +328,11 @@ func main() {
 	elapsed := int64(0)
 	quit := make(chan int)
 	//url := "http://www.baidu.com/img/bdlogo.gif"
-	url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
+	//url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
 	//url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
 	//url := "http://cdimage.ubuntu.com/daily-live/current/trusty-desktop-i386.iso"
 	//url := "https://d3g7pb956c5s5x.cloudfront.net/ubuntukylin-14.04-desktop-i386.iso"
-	//url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
+	url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
 	//url := "https://gitcafe.com/riku/Markdown-Syntax-CN/tarball/master"
 	//url := "http://download.skycn.com/hao123-soft-online-bcs/soft/P/2013-12-31_PowerWord.100@7728@_sky4.exe"
 	runtime.GOMAXPROCS(runtime.NumCPU())
