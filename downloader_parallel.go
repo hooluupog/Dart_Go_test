@@ -311,7 +311,7 @@ func progress(fInfo *fileInfo, elapsed int64) { // Real-time displaying rate of 
 	size = currentSize - lastSize
 	lastSize = currentSize
 	speed = float64(size) / 1024
-	showCurrent := sizeFormat(float64(currentSize))
+	cSize := sizeFormat(float64(currentSize))
 	remained := int64(3600*24 + 1)
 	if int64(speed) != 0 {
 		remained = (fInfo.fileLength - currentSize) / 1024 / int64(speed)
@@ -319,7 +319,7 @@ func progress(fInfo *fileInfo, elapsed int64) { // Real-time displaying rate of 
 	rTime := timeFormat(remained)
 	eTime := timeFormat(elapsed)
 	if fInfo.fileLength != 0 {
-		fmt.Printf("\r%4.1f%%  %8s/%-8s  %4.0f KB/S  Elapsed[%8s] Remain[%8s]", present*100, showCurrent, totalSize, speed, eTime, rTime)
+		fmt.Printf("\r%4.1f%%  %8s/%-8s  %4.0f KB/S  Elapsed[%8s] Remain[%8s]", present*100, cSize, totalSize, speed, eTime, rTime)
 	}
 }
 

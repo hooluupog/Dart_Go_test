@@ -32,7 +32,7 @@ func isConnected(url string) bool {
 }
 
 // Start a new dowloading.
-func new_download(url string) *http.Response {
+func newDownload(url string) *http.Response {
 	client := &http.Client{}
 	// Try connecting 10 times
 	for i := 0; i < 10; i++ {
@@ -53,7 +53,7 @@ func new_download(url string) *http.Response {
 }
 
 // Continue downloading if sucessing to connect server host.
-func resume_download(url string, fileSize, fileLength int64) *http.Response {
+func resumeDownload(url string, fileSize, fileLength int64) *http.Response {
 	// Try connecting 10 times
 	client := &http.Client{}
 	for i := 0; i < 10; i++ {
@@ -92,15 +92,15 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 			if err != nil { // File broken and recreating a new file.
 				output, err := os.Create(fileName)
 				do(err, "Can not create ", fileName)
-				fmt.Println("File broken.Will restart downloaing.")
+				fmt.Println("File broken.Will restart downloading.")
 				defer output.Close()
 				dst = output
-				resp = new_download(url)
+				resp = newDownload(url)
 				src = resp.Body
 				written = 0
 			} else { // Continue dowloading.
 				fileSize := stat.Size()
-				resp = resume_download(url, fileSize, fileLength)
+				resp = resumeDownload(url, fileSize, fileLength)
 				if resp.StatusCode != 206 {
 					fmt.Println("Do not support partial download.Restart downloading.")
 					output, err := os.Create(fileName)
@@ -318,7 +318,7 @@ func progress(data chan int64) { // Real-time displaying rate of progress.
 			updateSpeed = float64(size) / 1024 / duration
 			size = 0
 		}
-		showCurrent := sizeFormat(float64(currentSize))
+		cSize := sizeFormat(float64(currentSize))
 		remained := int64(-1)
 		if int64(speed) != 0 {
 			remained = (fileLength - currentSize) / 1024 / int64(speed)
@@ -326,7 +326,7 @@ func progress(data chan int64) { // Real-time displaying rate of progress.
 		elapsed := int64(time.Now().Sub(earlest).Seconds())
 		rTime := timeFormat(remained)
 		eTime := timeFormat(elapsed)
-		fmt.Printf("\r%4.1f%%  %8s/%-8s  %4.0f KB/S  Elapsed[%8s] Remain[%8s]", present*100, showCurrent, totalSize, speed, eTime, rTime)
+		fmt.Printf("\r%4.1f%%  %8s/%-8s  %4.0f KB/S  Elapsed[%8s] Remain[%8s]", present*100, cSize, totalSize, speed, eTime, rTime)
 	}
 	//Wait downloadfromurl() finish executing.
 	data <- 1
