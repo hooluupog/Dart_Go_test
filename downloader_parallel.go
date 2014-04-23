@@ -275,18 +275,18 @@ func timeFormat(sec int64) string {
 
 //Format file size Bytes show GB,MB,KB,B.
 func sizeFormat(size float64) string {
-	showSize := ""
+	fmtSize := ""
 	switch {
 	case size/1024 <= 1:
-		showSize = strconv.FormatFloat(size, 'f', 0, 64) + "B"
+		fmtSize = strconv.FormatFloat(size, 'f', 0, 64) + "B"
 	case size/1024/1024 <= 1:
-		showSize = strconv.FormatFloat(size/1024, 'f', 1, 64) + "KB"
+		fmtSize = strconv.FormatFloat(size/1024, 'f', 1, 64) + "KB"
 	case size/1024/1024/1024 <= 1:
-		showSize = strconv.FormatFloat(size/1024/1024, 'f', 1, 64) + "MB"
+		fmtSize = strconv.FormatFloat(size/1024/1024, 'f', 1, 64) + "MB"
 	default:
-		showSize = strconv.FormatFloat(size/1024/1024/1024, 'f', 1, 64) + "GB"
+		fmtSize = strconv.FormatFloat(size/1024/1024/1024, 'f', 1, 64) + "GB"
 	}
-	return showSize
+	return fmtSize
 }
 
 func progress(fInfo *fileInfo, elapsed int64) { // Real-time displaying rate of progress.
@@ -316,6 +316,9 @@ func progress(fInfo *fileInfo, elapsed int64) { // Real-time displaying rate of 
 	if int64(speed) != 0 {
 		remained = (fInfo.fileLength - currentSize) / 1024 / int64(speed)
 	}
+	if currentSize == fInfo.fileLength {
+		remained = 0
+	}
 	rTime := timeFormat(remained)
 	eTime := timeFormat(elapsed)
 	if fInfo.fileLength != 0 {
@@ -341,16 +344,12 @@ func main() {
 	for {
 		select {
 		case <-tick:
-			{
-				elapsed++
-				progress(fInfo, elapsed)
-			}
+			elapsed++
+			progress(fInfo, elapsed)
 		case <-quit:
-			{
-				progress(fInfo, elapsed)
-				fmt.Print("\nDownload finished.")
-				return
-			}
+			progress(fInfo, elapsed)
+			fmt.Print("\nDownload finished.")
+			return
 		}
 	}
 }

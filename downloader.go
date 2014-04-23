@@ -280,18 +280,18 @@ func timeFormat(sec int64) string {
 
 //Format file size Bytes show GB,MB,KB,B.
 func sizeFormat(size float64) string {
-	showSize := ""
+	fmtSize := ""
 	switch {
 	case size/1024 <= 1:
-		showSize = strconv.FormatFloat(size, 'f', 0, 64) + "B"
+		fmtSize = strconv.FormatFloat(size, 'f', 0, 64) + "B"
 	case size/1024/1024 <= 1:
-		showSize = strconv.FormatFloat(size/1024, 'f', 1, 64) + "KB"
+		fmtSize = strconv.FormatFloat(size/1024, 'f', 1, 64) + "KB"
 	case size/1024/1024/1024 <= 1:
-		showSize = strconv.FormatFloat(size/1024/1024, 'f', 1, 64) + "MB"
+		fmtSize = strconv.FormatFloat(size/1024/1024, 'f', 1, 64) + "MB"
 	default:
-		showSize = strconv.FormatFloat(size/1024/1024/1024, 'f', 1, 64) + "GB"
+		fmtSize = strconv.FormatFloat(size/1024/1024/1024, 'f', 1, 64) + "GB"
 	}
-	return showSize
+	return fmtSize
 }
 
 func progress(data chan int64) { // Real-time displaying rate of progress.
@@ -323,6 +323,10 @@ func progress(data chan int64) { // Real-time displaying rate of progress.
 		if int64(speed) != 0 {
 			remained = (fileLength - currentSize) / 1024 / int64(speed)
 		}
+		if currentSize == fileLength {
+			remained = 0
+		}
+
 		elapsed := int64(time.Now().Sub(earlest).Seconds())
 		rTime := timeFormat(remained)
 		eTime := timeFormat(elapsed)
