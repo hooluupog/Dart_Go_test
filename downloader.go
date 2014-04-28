@@ -101,7 +101,7 @@ func transfer(dst io.Writer, src io.Reader, url string, fileName string, fileLen
 			} else { // Continue dowloading.
 				fileSize := stat.Size()
 				resp = resumeDownload(url, fileSize, fileLength)
-				if resp.StatusCode != 206 {
+				if resp.StatusCode != http.StatusPartialContent { // 206
 					fmt.Println("Do not support partial download.Restart downloading.")
 					output, err := os.Create(fileName)
 					do(err, "Can not create ", fileName)
@@ -230,7 +230,7 @@ func downloadFromUrl(url string, data chan int64) {
 	do(err, "Error while requesting ", rUrl)
 	response, err := client.Do(req)
 	do(err, "Error while downloading ", rUrl)
-	if response.StatusCode == 404 {
+	if response.StatusCode == http.StatusNotFound { //404
 		log.Fatal("file NotFound: ", rUrl)
 	}
 	defer response.Body.Close()
