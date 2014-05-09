@@ -331,11 +331,11 @@ func main() {
 	elapsed := int64(0)
 	quit := make(chan int)
 	//url := "http://www.baidu.com/img/bdlogo.gif"
-	//url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
+	url := "http://down.sandai.net/thunder7/Thunder_dl_7.9.20.4754.exe"
 	//url := "http://www.ubuntukylin.com/downloads/download.php?id=25"
 	//url := "http://cdimage.ubuntu.com/daily-live/current/trusty-desktop-i386.iso"
 	//url := "https://d3g7pb956c5s5x.cloudfront.net/ubuntukylin-14.04-desktop-i386.iso"
-	url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
+	//url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
 	//url := "https://gitcafe.com/riku/Markdown-Syntax-CN/tarball/master"
 	//url := "http://download.skycn.com/hao123-soft-online-bcs/soft/P/2013-12-31_PowerWord.100@7728@_sky4.exe"
 	runtime.GOMAXPROCS(runtime.NumCPU())
