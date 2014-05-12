@@ -1,0 +1,9 @@
+body{
+	background:#DDD;
+	padding-bottom:40px;
+}
+.code{
+	background:white;
+	border:1px solid #DDD;
+	border-radius:4px;
+}
