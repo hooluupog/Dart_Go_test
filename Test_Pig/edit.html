@@ -1,10 +1,30 @@
 <html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
+<script>
+var xmlreq;
+function showPigs(){
+    var data = document.getElementById("pig").value;
+		var req = new XMLHttpRequest();
+		xmlreq = req;
+		req.onreadystatechange = updatePigs;
+		req.open("POST","/view",true);
+		req.setRequestHeader("Content-Type","text/plain; charset=utf-8");
+		req.send(data);
+}
+
+function updatePigs(){
+    var req = xmlreq;
+	  if(!req || req.readyState != 4) {
+	  	return;
+	  }
+	  document.getElementById("output").innerHTML = req.responseText;
+}
+
+</script>
 </head>
 <body>
 <h1> Pig all the way down </h1>
-<form action="/view" method="POST">
 <div class="code">
 <pre>
 func 我是(x string, n int) {
@@ -17,7 +37,7 @@ func 我是(x string, n int) {
 }
 
 func Run(n int) {
-  三 := <textArea name="pig" rows = "2" cols="2"></textArea>
+  三 := <textArea id="pig" rows = "2" cols="2"></textArea>
 
 	猪头 := <img src = "pig.png" alt ="image">
 
@@ -25,7 +45,7 @@ func Run(n int) {
 }
 </pre>
 </div>
-<div><input type="submit" value="Go"></div>
-</form>
+<div><input type="submit" value="Go" onclick="showPigs()"></div>
+<div id="output"></div>
 </body>
 </html>

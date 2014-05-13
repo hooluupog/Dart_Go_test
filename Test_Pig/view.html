@@ -1,35 +1,5 @@
-<html>
-<head>
-<link rel="stylesheet" href="style.css" type="text/css">
-</head>
-<body>
-<h1> Pig all the way down </h1>
-<div class="code">
-<pre>
-func 我是(x string, n int) {
-	if n == 0 {
-		return
-	} else {
-		pig.Print(x, n)
-		我是(x, n-1)
-	}
-}
-
-func Run(n int) {
-	三 := {{.Num}}
-
-	猪头 := <img src = "pig.png" alt ="image">
-
-	我是(猪头, 三)
-}
-</pre>
-</div>
-
-<div>我是<br>
+我是<br>
 	{{$num := .Num}}
 	{{range $index,$element := .Image}} 
 	  {{if lt $index $num}}<img src="{{$element}}" alt="default pic">{{end}}
 	{{end}}
-</div>
-</body>
-</html>
