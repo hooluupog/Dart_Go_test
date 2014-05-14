@@ -24,28 +24,30 @@ function updatePigs(){
 </script>
 </head>
 <body>
+<div class="content">
 <h1> Pig all the way down </h1>
 <div class="code">
 <pre>
 func 我是(x string, n int) {
-	if n == 0 {
-		return
-	} else {
-		pig.Print(x, n)
-		我是(x, n-1)
-	}
+  if n == 0 {
+    return
+  } else {
+    pig.Print(x, n)
+    我是(x, n-1)
+  }
 }
 
 func Run(n int) {
-  三 := <textArea id="pig" rows = "2" cols="2"></textArea>
+  三 := <input id="pig" type="text" size="6" placeholder="猪头的数目">
 
-	猪头 := <img src = "pig.png" alt ="image">
+  猪头 := <img src = "pig.png" alt ="image">
 
-	我是(猪头, 三)
+  我是(猪头, 三)
 }
 </pre>
 </div>
-<div><input type="submit" value="Go" onclick="showPigs()"></div>
+<div><input type="submit" value="运行" onclick="showPigs()"></div>
 <div id="output"></div>
+</div>
 </body>
 </html>
