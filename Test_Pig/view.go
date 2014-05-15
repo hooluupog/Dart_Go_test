@@ -2,6 +2,7 @@ package main
 
 import (
 	"Test_Pig/controller"
+	"errors"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -60,6 +61,9 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	num, err := strconv.Atoi(string(body))
+	if num < 0 {
+		err = errors.New("Invalid number.")
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
