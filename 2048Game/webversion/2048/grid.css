@@ -4,6 +4,8 @@ html,body{
 	font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
 	font-size: 18px;
 } 
+body {
+margin:80px 0;}
 .container{
 	width:500px;
 	margin:0 auto;
@@ -142,5 +144,100 @@ html,body{
 	.tile-2048  {
 		font-size: 15px;
 	}
+}
+
+@media screen and (max-width:520px){
+	html,body{
+		font-size: 15px;
+	} 
+	body {
+		margin-top: 0;
+		padding:20px;
+	}
+	.container{
+		width:280px;
+		margin:0 auto;
+	}
+	.game-container{
+		margin-top:17px;
+		position:relative;
+		padding:10px;
+		background:#bbada0;
+		border-radius:6px;
+		width:280px;
+		height:280px;
+		box-sizing:border-box;
+	}
+	.message{
+		display: none;
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		background: rgba(238, 228, 218, 0.73);
+		z-index: 100;
+		padding-top: 40px;
+		text-align: center;
+		vertical-align:middle;
+		line-height:280px;
+		font-size:35px;
+
+	}
+	.grid-container{
+		position:absolute;
+		z-index:1;
+	}
+	.row {
+		margin-bottom:10px;
+	}
+	.row:last-child{
+		margin-bottom:0;
+	}
+	.row:after{
+		content:"";
+		display:block;
+		clear:both;
+	}
+	.col {
+		width:57.5px;
+		height:57.5px;
+		text-align:center;
+		vertical-align:middle;
+		line-height:57.5px;
+		float:left;
+		margin-right:10px;
+		background:rgba(238, 228, 218, 0.35);
+		border-radius:3px;
+		font-size:35px;
+	}
+	.col:last-child{
+		margin-right:0;
+	}
+	.tile-2{
+		background: #eee4da;
+		box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0), inset 0 0 0 1px rgba(255, 255, 255, 0);
+	}
+	.tile-4 {
+		background: #ede0c8;
+		box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0), inset 0 0 0 1px rgba(255, 255, 255, 0); 
+	}
+	.tile-8 {
+		color: #f9f6f2;
+		background: #f2b179; 
+	}
+	.tile-16 {
+		color: #f9f6f2;
+		background: #f59563; 
+	}
+	.tile-32  {
+		color: #f9f6f2;
+		background: #f67c5f; 
+	}
+	.tile-64  {
+		color: #f9f6f2;
+		background: #f65e3b; 
+	}
+
 }
 //TODO: fide-in fide-out and smooth movement animation
