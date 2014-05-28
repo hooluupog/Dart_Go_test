@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" manifest="cache.appcache">
+<head>
+<meta charset="utf-8">
+<style>
+.container{
+	margin-top: 40px;
+  position: relative;
+  padding: 15px;
+  cursor: default;
+  background: #bbada0;
+  border-radius: 6px;
+  width: 250px;
+  height: 250px;
+  box-sizing: border-box;
+}
+.grid{
+  position: absolute;
+  z-index: 1; 
+}
+.row {
+	margin-bottom: 15px; 
+}
+.row:last-child {
+    margin-bottom: 0;
+}
+.row:after {
+    content: "";
+    display: block;
+    clear: both; 
+}
+.col {
+  width: 106.25px;
+  height: 106.25px;
+  margin-right: 15px;
+  float: left;
+  border-radius: 3px;
+  background: rgba(238, 228, 218, 0.35); 
+}
+.col:last-child {
+    margin-right: 0; 
+}
+.tile-container {
+  position: absolute;
+  z-index: 2; 
+}
+.tile{
+	position:absolute;
+  width: 107px;
+  height: 107px;
+  line-height: 116.25px; 
+	border-radius:3px;
+	background: #eee4da;
+	text-align: center;
+	font-weight: bold;
+	z-index: 10;
+	font-size: 55px; 
+	-webkit-transition: 300ms ease-in-out;
+  -moz-transition: 300ms ease-in-out;
+  transition: 300ms ease-in-out;
+  -webkit-transition-property: -webkit-transform;
+  -moz-transition-property: -moz-transform;
+  transition-property: transform; 
+}
+.tile-0-0{
+	-webkit-transform: translate(0px,0px);
+	transform: translate(0px,0px);
+}
+.tile-0-1{
+	-webkit-transform: translate(121px,0px);
+	transform: translate(121px,0px);
+}
+.tile-1-0{
+	-webkit-transform: translate(0px,121px);
+	transform: translate(0px,121px);
+}
+.tile-1-1{
+	-webkit-transform: translate(121px,121px);
+	transform: translate(121px,121px);
+}
+</style>
+</head>
+<body>
+<div class="container">
+	<div class="grid">
+		<div class="row">
+			<div class="col"></div>
+			<div class="col"></div>
+		</div>
+		<div class="row">
+			<div class="col"></div>
+			<div class="col"></div>
+		</div>
+	</div>
+	<div class="tile-container">
+		<div class="tile tile-0-0">1</div>
+		<div class="tile tile-0-1">2</div>
+	</div>
+</div>
+<script>
+var e1 = document.getElementsByClassName("tile-0-0")[0];
+var e2 = document.getElementsByClassName("tile-0-1")[0];
+e1.onclick=function(){
+	e1.className = e1.className == "tile tile-0-0"?"tile tile-1-0":"tile tile-0-0";
+};
+e2.onclick=function(){
+	e2.className = e2.className == "tile tile-0-1"?"tile tile-1-1":"tile tile-0-1";
+};
+</script>
+</body>
+</html>
