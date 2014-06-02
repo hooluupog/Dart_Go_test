@@ -1,13 +1,43 @@
 <div class="game-container">
-	<div class="message" id="result">{{.Win}}</div>
+	<div class="message">
+		<p id="result">{{.Win}}</p>
+		<div class="lower">
+			<a class="keep-playing-button">Keep playing</a>
+			<a class="retry-button">Try again</a> 
+		</div>
+	</div>
 	<div class="grid-container">
+		<div class="row">
+			<div class="col"></div>
+			<div class="col"></div>
+			<div class="col"></div>
+			<div class="col"></div>
+		</div>
+		<div class="row">
+			<div class="col"></div>
+			<div class="col"></div>
+			<div class="col"></div>
+			<div class="col"></div>
+		</div>
+		<div class="row">
+			<div class="col"></div>
+			<div class="col"></div>
+			<div class="col"></div>
+			<div class="col"></div>
+		</div>
+		<div class="row">
+			<div class="col"></div>
+			<div class="col"></div>
+			<div class="col"></div>
+			<div class="col"></div>
+		</div>
+	</div>
+	<div class="tile-container">
 		{{$zero := .Uzero}}
 		{{range $row,$element := .Tile}}
-		<div class="row">
 			{{range $col,$value := $element}}
-			<div class="col tile-{{$value}}">{{if ne $value $zero}}{{$value}}{{end}}</div>
+			{{if ne $value.Value $zero}}<div class="tile tile-{{$row}}-{{$col}} tile-{{$value.Value}} newTile"><div class="tile-inner">{{$value.Value}}</div></div>{{end}}
 			{{end}}
-		</div>
 		{{end}}
 	</div>
 </div>
