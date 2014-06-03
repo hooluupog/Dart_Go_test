@@ -35,9 +35,9 @@
 	<div class="tile-container">
 		{{$zero := .Uzero}}
 		{{range $row,$element := .Tile}}
-			{{range $col,$value := $element}}
-			{{if ne $value.Value $zero}}<div class="tile tile-{{$row}}-{{$col}} tile-{{$value.Value}} newTile"><div class="tile-inner">{{$value.Value}}</div></div>{{end}}
-			{{end}}
+		{{range $col,$value := $element}}
+		{{if ne $value.Value $zero}}<div class="tile tile-{{$row}}-{{$col}} tile-{{$value.Value}} newTile"><div class="tile-inner">{{$value.Value}}</div></div>{{end}}
+		{{end}}
 		{{end}}
 	</div>
 </div>

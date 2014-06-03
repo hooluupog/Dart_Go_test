@@ -4,7 +4,10 @@ function ajax(direction){
     xmlreq = req;
     if (direction != null) {
         req.onreadystatechange = updateGrid;
-        req.open("POST","/"+ direction,true);
+        // req.open() arugment : the request needs to be handled asynchronous (true) or synchronous (false). true is by default
+        // and is good for big data request without need to wait a long time before doing another thing.As for this real-time
+        // inreactive game,each time request is very small but need handled sequencely.So make the argument be false.
+        req.open("POST","/"+ direction,false);
         req.setRequestHeader("Content-Type","text/plain; charset=utf-8");
         req.send(direction);
     }else{
