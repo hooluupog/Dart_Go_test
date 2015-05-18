@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-// My personal cookieJar implemention to allow non stardard cookie.
+// My personal cookieJar implementation to allow non stardard cookie.
 type MyJar struct {
 	jar map[string][]*http.Cookie
 }
