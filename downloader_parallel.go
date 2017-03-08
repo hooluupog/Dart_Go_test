@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -338,7 +337,7 @@ func main() {
 	//url := "https://codeload.github.com/gabrielecirulli/2048/zip/master"
 	//url := "https://gitcafe.com/riku/Markdown-Syntax-CN/tarball/master"
 	//url := "http://download.skycn.com/hao123-soft-online-bcs/soft/P/2013-12-31_PowerWord.100@7728@_sky4.exe"
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	//runtime.GOMAXPROCS(runtime.NumCPU())
 	tick := time.Tick(1000 * time.Millisecond)
 	go downloadFromUrl(url, fInfo, quit)
 	for {
