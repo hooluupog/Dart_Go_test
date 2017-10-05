@@ -1,0 +1,32 @@
+
+body {
+  background-color: #F8F8F8;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.2em;
+  margin: 15px;
+}
+
+h1, p {
+  color: #333;
+  font-size: 14pt;
+}
+
+#sample_container_id {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  overflow: scroll;
+}
+
+#sample_text_id {
+  font-size: 9pt;
+  text-align: left;
+  margin-top: 140px;
+  margin-left: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}

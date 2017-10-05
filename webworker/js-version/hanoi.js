@@ -11,4 +11,4 @@ function hanoi(n,x,y,z) {
     hanoi(n-1,y,x,z);
   }
 }
-hanoi(12,'A','B','C');
+hanoi(6,'A','B','C');

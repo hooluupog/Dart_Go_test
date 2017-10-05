@@ -7,7 +7,6 @@ var text;
 void main(List<String> args, SendPort reply) {
   var sw = new Stopwatch();
   var port = new ReceivePort();
-  // 向其他isolates通知自己的接收端口.
   reply.send(port.sendPort);
   replyTo = reply;
   port.listen((msg) {
