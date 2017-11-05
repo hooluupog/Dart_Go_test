@@ -60,11 +60,11 @@ String sizeFormat(num size) {
   if (KB <= 1)
     fmtSize = size.toStringAsFixed(0).padLeft(7, ' ') + 'B';
   else if (MB <= 1)
-    fmtSize = (KB).toStringAsFixed(1).padLeft(6, ' ') + 'KB';
+    fmtSize = KB.toStringAsFixed(1).padLeft(6, ' ') + 'KB';
   else if (GB <= 1)
-    fmtSize = (MB).toStringAsFixed(1).padLeft(6, ' ') + 'MB';
+    fmtSize = MB.toStringAsFixed(1).padLeft(6, ' ') + 'MB';
   else
-    fmtSize = (GB).toStringAsFixed(1).padLeft(6, ' ') + 'GB';
+    fmtSize = GB.toStringAsFixed(1).padLeft(6, ' ') + 'GB';
   return fmtSize;
 }
 
