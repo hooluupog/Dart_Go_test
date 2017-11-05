@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -244,26 +245,45 @@ func downloadFromUrl(url string, fInfo *fileInfo, quit chan int) {
 // Format total seconds into xx:xx:xx.(hour:minute:second)
 func timeFormat(sec int64) string {
 	fmtTime := ""
-	if float64(sec)/3600 > 24 {
+	var hour int64
+	var minute int64
+	var second int64
+	date := (time.Duration(sec) * time.Second).String()
+	tm := regexp.MustCompile("[a-z]").Split(date, -1)
+	switch len(tm) {
+	case 4:
+		hour, _ = strconv.ParseInt(tm[0], 10, 64)
+		minute, _ = strconv.ParseInt(tm[1], 10, 64)
+		second, _ = strconv.ParseInt(tm[2], 10, 64)
+	case 3:
+		minute, _ = strconv.ParseInt(tm[0], 10, 64)
+		second, _ = strconv.ParseInt(tm[1], 10, 64)
+	default:
+		second, _ = strconv.ParseInt(tm[0], 10, 64)
+	}
+	if hour > 24 {
 		fmtTime = "> 1 day"
 		return fmtTime
 	}
-	hour := sec / 3600
-	minute := sec % 3600 / 60
-	second := sec % 3600 % 60
 	switch {
+	case hour < 1:
+		fmtTime = "00" + ":"
 	case hour < 10:
 		fmtTime = "0" + strconv.FormatInt(hour, 10) + ":"
 	default:
 		fmtTime = strconv.FormatInt(hour, 10) + ":"
 	}
 	switch {
+	case minute < 1:
+		fmtTime += "00" + ":"
 	case minute < 10:
 		fmtTime += "0" + strconv.FormatInt(minute, 10) + ":"
 	default:
 		fmtTime += strconv.FormatInt(minute, 10) + ":"
 	}
 	switch {
+	case second < 1:
+		fmtTime += "00"
 	case second < 10:
 		fmtTime += "0" + strconv.FormatInt(second, 10)
 	default:
@@ -275,15 +295,18 @@ func timeFormat(sec int64) string {
 //Format file size Bytes show GB,MB,KB,B.
 func sizeFormat(size float64) string {
 	fmtSize := ""
+	KB := size / 1024
+	MB := KB / 1024
+	GB := MB / 1024
 	switch {
-	case size/1024 <= 1:
+	case KB <= 1:
 		fmtSize = strconv.FormatFloat(size, 'f', 0, 64) + "B"
-	case size/1024/1024 <= 1:
-		fmtSize = strconv.FormatFloat(size/1024, 'f', 1, 64) + "KB"
-	case size/1024/1024/1024 <= 1:
-		fmtSize = strconv.FormatFloat(size/1024/1024, 'f', 1, 64) + "MB"
+	case MB <= 1:
+		fmtSize = strconv.FormatFloat(KB, 'f', 1, 64) + "KB"
+	case GB <= 1:
+		fmtSize = strconv.FormatFloat(MB, 'f', 1, 64) + "MB"
 	default:
-		fmtSize = strconv.FormatFloat(size/1024/1024/1024, 'f', 1, 64) + "GB"
+		fmtSize = strconv.FormatFloat(GB, 'f', 1, 64) + "GB"
 	}
 	return fmtSize
 }
