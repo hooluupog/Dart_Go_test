@@ -150,8 +150,7 @@ int update(int chunk, int elapsed, int preSize, int currSize, int fileSize) {
     var present = (currSize / fileSize * 100).toStringAsFixed(2);
     var speed = currSize - preSize;
     int rTime = speed == 0 ? -1 : (fileSize - currSize) ~/ speed;
-    stdout.write(
-        '\r$present%  ${sizeFormat(currSize)}/${sizeFormat(fileSize).trim()}   ${sizeFormat(speed)}/S  Elapsed[${timeFormat(elapsed)}]  Remain[${timeFormat(rTime)}]');
+    stdout.write('\r$present%  ${sizeFormat(currSize)}/${sizeFormat(fileSize).trim()}   ${sizeFormat(speed)}/S  Elapsed[${timeFormat(elapsed)}]  Remain[${timeFormat(rTime)}]');
     preSize = currSize;
   }
   return preSize;
