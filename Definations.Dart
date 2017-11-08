@@ -33,9 +33,9 @@ class Person extends Human with Philosopher, Musician, Athlete {
   name: $_name
   major: ${major()}
   hobbyies:
-    ${thinking()}
-    ${create()}
-    ${compete()}''');
+    ${Hobbyies.philosopher(this)}
+    ${Hobbyies.musician(this)}
+    ${Hobbyies.athlete(this)}''');
 }
 
 /// Interface. Subclass does not inherit but implement(must implement)
@@ -51,9 +51,16 @@ class Student extends Human implements Philosopher, Musician, Athlete {
   name: $_name
   major: ${major()}
   hobbyies:
-    ${thinking()}
-    ${create()}
-    ${compete()}''');
+    ${Hobbyies.philosopher(this)}
+    ${Hobbyies.musician(this)}
+    ${Hobbyies.athlete(this)}''');
+}
+
+/// Interface caller.
+class Hobbyies {
+  static String philosopher(Philosopher p) => p.thinking();
+  static String musician(Musician m) => m.create();
+  static String athlete(Athlete a) => a.compete();
 }
 
 main() {
