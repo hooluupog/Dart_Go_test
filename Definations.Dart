@@ -32,7 +32,7 @@ class Person extends Human with Philosopher, Musician, Athlete {
   profile() => print('''
   name: $_name
   major: ${major()}
-  hobbyies:
+  hobbies:
     ${Hobbyies.philosopher(this)}
     ${Hobbyies.musician(this)}
     ${Hobbyies.athlete(this)}''');
@@ -50,7 +50,7 @@ class Student extends Human implements Philosopher, Musician, Athlete {
   profile() => print('''
   name: $_name
   major: ${major()}
-  hobbyies:
+  hobbies:
     ${Hobbyies.philosopher(this)}
     ${Hobbyies.musician(this)}
     ${Hobbyies.athlete(this)}''');
