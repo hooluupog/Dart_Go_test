@@ -1,0 +1,4 @@
+name: psum 
+web:
+  compiler:
+    debug: dartdevc
