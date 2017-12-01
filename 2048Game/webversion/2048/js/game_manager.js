@@ -39,7 +39,6 @@ function showMessage(){
         var restart = document.getElementsByClassName("retry-button")[0];
         restart.onclick = function(){
             elem.className = "message"; 
-            elem.style.display='none';
             continueAfterwon = false;
             stopkeyboardListener = false;
             ajax();
