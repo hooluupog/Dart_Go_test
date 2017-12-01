@@ -11,8 +11,8 @@ renderGrid(List tile) {
   for (var row = 0; row < tile.length; row++) {
     for (var col = 0; col < tile.length; col++) {
       if (tile[row][col].Value != 0) {
-        text +=
-            '<div class=\'tile tile-$row-$col tile-${tile[row][col].Value} newTile\'><div class=\'tile-inner\'>${tile[row][col].Value}</div></div>';
+        text += '<div class=\'tile tile-$row-$col tile-${tile[row][col].Value} newTile\'>' + 
+            '<div class=\'tile-inner\'>${tile[row][col].Value}</div></div>';
       }
     }
   }
@@ -78,8 +78,7 @@ clearstatus(List list) {
   var tilestatus;
   while (list.length != 0) {
     tilestatus = list.removeLast();
-    tilestatus.elem.className =
-        'tile tile-${tilestatus.row}-${tilestatus.col} tile-${tilestatus.value}';
+    tilestatus.elem.className = 'tile tile-${tilestatus.row}-${tilestatus.col} tile-${tilestatus.value}';
   }
 }
 
@@ -99,10 +98,8 @@ updateGrid(String direction) {
         if (data.MergedFrom != null) {
           var ob1 = data.MergedFrom[0];
           var ob2 = data.MergedFrom[1];
-          var elem1 = querySelector(
-              '.tile.tile-${ob1.Row}-${ob1.Col}.tile-${ob1.Value}');
-          var elem2 = querySelector(
-              '.tile.tile-${ob2.Row}-${ob2.Col}.tile-${ob2.Value}');
+          var elem1 = querySelector('.tile.tile-${ob1.Row}-${ob1.Col}.tile-${ob1.Value}');
+          var elem2 = querySelector('.tile.tile-${ob2.Row}-${ob2.Col}.tile-${ob2.Value}');
           if (elem1 != null) {
             elem1.className = 'tile tile-$row-$col tile-${ob1.Value}';
           }
@@ -115,8 +112,7 @@ updateGrid(String direction) {
             node[i].remove();
           }
           var newElem = document.createElement('div');
-          newElem.className =
-              'tile tile-$row-$col tile-${data.Value} mergedTile';
+          newElem.className = 'tile tile-$row-$col tile-${data.Value} mergedTile';
           mergedTileList.add(new _TileStatus(newElem, row, col, data.Value));
           querySelector('.tile-container').append(newElem);
           newElem.innerHtml = '<div class=\'tile-inner\'>${data.Value}</div>';
@@ -124,14 +120,12 @@ updateGrid(String direction) {
           if (data.IsNewTile) {
             // New generated random tile.
             var newElem = document.createElement('div');
-            newElem.className =
-                'tile tile-$row-$col tile-${data.Value} newTile';
+            newElem.className = 'tile tile-$row-$col tile-${data.Value} newTile';
             newTileList.add(new _TileStatus(newElem, row, col, data.Value));
             querySelector('.tile-container').append(newElem);
             newElem.innerHtml = '<div class=\'tile-inner\'>${data.Value}</div>';
           } else {
-            var elem = querySelector(
-                '.tile.tile-${data.PrePosition.Row}-${data.PrePosition.Col}.tile-$pre');
+            var elem = querySelector('.tile.tile-${data.PrePosition.Row}-${data.PrePosition.Col}.tile-$pre');
             if (elem != null) {
               elem.className = 'tile tile-$row-$col tile-${data.Value}';
             }

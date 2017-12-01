@@ -139,8 +139,7 @@ bool moveOneStep(int direction) {
           // Current tile[row][col] is the leftmost non-empty tile.
           posTile.Value = currentTile.Value;
           posTile.PrePosition = new _Position(rrow, rcol, currentTile.Value);
-          currentTile.PrePosition =
-              new _Position(prow, pcol, currentTile.Value);
+          currentTile.PrePosition = new _Position(prow, pcol, currentTile.Value);
           currentTile.Value = 0;
           flag = false;
           moveCount++;
@@ -152,12 +151,10 @@ bool moveOneStep(int direction) {
             // Merge equal tiles.
             posTile.MergedFrom = new List<_Position>(2);
             posTile.MergedFrom[0] = posTile.PrePosition;
-            posTile.MergedFrom[1] =
-                new _Position(rrow, rcol, currentTile.Value);
+            posTile.MergedFrom[1] = new _Position(rrow, rcol, currentTile.Value);
             posTile.Value = currentTile.Value + posTile.Value;
             posTile.PrePosition = new _Position(rrow, rcol, currentTile.Value);
-            currentTile.PrePosition =
-                new _Position(prow, pcol, currentTile.Value);
+            currentTile.PrePosition = new _Position(prow, pcol, currentTile.Value);
             currentTile.Value = 0;
             blankCount += 1;
             moveCount++;
@@ -175,8 +172,7 @@ bool moveOneStep(int direction) {
             posTile = tile[prow][pcol];
             posTile.Value = currentTile.Value;
             posTile.PrePosition = new _Position(rrow, rcol, currentTile.Value);
-            currentTile.PrePosition =
-                new _Position(prow, pcol, currentTile.Value);
+            currentTile.PrePosition = new _Position(prow, pcol, currentTile.Value);
             currentTile.Value = 0;
             pos = pos + 1;
             moveCount++;
